@@ -2,13 +2,22 @@ import React from "react";
 import { connect } from "react-redux";
 import { useEffect, useState } from "react";
 import { getPhotos } from "../actions/getPhotos";
-
+import Pagination from "./paginate";
 const Photos = (props) => {
   const [photoList, setPhotoList] = useState([]);
-  useEffect(() => props.getPhotos());
+  const [photosPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => props.getPhotos(), []);
   const getPhotos = () => {
     setPhotoList(props.photos);
   };
+  const photoss = photoList.slice(0, 50);
+  const iOfLastPhoto = currentPage * photosPerPage;
+  const iOfFirstPhoto = iOfLastPhoto - photosPerPage;
+  const currentPhotos = photoss.slice(iOfFirstPhoto, iOfLastPhoto);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div>
       <button onClick={getPhotos} className="ui button red">
@@ -16,7 +25,7 @@ const Photos = (props) => {
       </button>
 
       <div>
-        {photoList.map((m) => (
+        {currentPhotos.map((m) => (
           <div className="ui card">
             <div className="image">
               <img src={m.url}></img>
@@ -39,6 +48,11 @@ const Photos = (props) => {
           </div>
         ))}
       </div>
+      <Pagination
+        photosPerPage={photosPerPage}
+        totalPhotos={photoss.length}
+        paginate={paginate}
+      />
     </div>
   );
 };
